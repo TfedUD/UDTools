@@ -155,19 +155,19 @@ class Get_GnomeLibraries:
 
     def __init__(self):
         self.libraries = {
-            "nceCostEst":{}
+            "nceCostEstLib":{}
         }
     def getnceCostEst(self):
         return self.libraries["nceCostEstLib"]
 
     def cleanGnomeLibs(self):
         self.libraries = {
-            "nceCostEst": {}
+            "nceCostEstLib": {}
         }
 
     def replace(self):
         #rep findings
-        print "%s NCE material & cost library delivered to Gnome Library"%str(len(self.libraries["nceCostEst"]))
+        print "%s NCE material & cost library delivered to Gnome Library"%str(len(self.libraries["nceCostEstLib"]))
         print "\n"
 
     @staticmethod 
@@ -185,9 +185,82 @@ class Get_GnomeLibraries:
                          self.libraries["nceCostEstLib"][nceName] = {}
 
                          #create mats with values from costEst.csv
-                         self.libraries["nceCostEst"][matName]["Name"] = matName
-                         self.libraries["nceCostEst"][matName]["Description"] = float(nceDataLine[-3])
-                         self.libraries["nceCostEst"][matName]["CostPerUnit"] = float(nceDataLine[-2])
-                         self.libraries["nceCostEst"][matName]["UnitOfMeasure"] = float(nceDataLine[-1])
+                         self.libraries["nceCostEstLib"][matName]["Name"] = matName
+                         self.libraries["nceCostEstLib"][matName]["Description"] = float(nceDataLine[-3])
+                         self.libraries["nceCostEstLib"][matName]["CostPerUnit"] = float(nceDataLine[-2])
+                         self.libraries["nceCostEstLib"][matName]["UnitOfMeasure"] = float(nceDataLine[-1])
                         except: pass
-                        
+
+class GnomLibAux(object):
+
+    def isNceMaterial(self, matName):
+        return matName.upper() in sc.sticky["nceCostEstLib"].keys()
+    
+    def getObjectKey(self, GnomeObj):
+
+        GnomeKeys = ["Description", "CostPerUnit", "UnitOfMeasure"]
+
+        for key in GnomeKeys:
+            if GnomeLibObject.strip().startswith(key):
+                return key
+
+    def getGnomeLibOjectDataByName(self, objectName):
+        objectData = None
+
+        objectName = objectName.upper()
+
+        if objectName in sc.sticky ["nceCostEstLib"].keys():
+            objectData = sc.sticky ["nceCostEstLib"][onjectName]
+
+        return objectData
+
+    def getGnomeObjectsStr(self, objectName):
+
+        objectData = self.getGnomeLibOjectDataByName(objectName)
+
+        if objectData!=None:
+            numberOfLayers = len(objectData.keys())
+            
+            objectStr = objectData[0] + ",\n"
+
+            objectStr = objectStr + " " + objectName + ",  !- name\n"
+
+
+# cont line 4426
+
+
+
+
+
+
+def searchListByKeyword(self, inputlist, keyword):
+    """ search inside a list of strings for keywords """
+
+    def checkMultipleKeywords(name, keywordlist):
+        for kw in keywordlist:
+            if name.find(kw)== -1:
+                return False
+        return True
+
+     kWords = []
+     for kw in keywords:
+         kWords.append(kw.strip(),upper().split(" "))
+
+        selectedItems = []
+        alternateOptions = []
+
+        for item in inputList:
+            if len(kWords) != 0 and not "*" in keywords:
+                for keyword in kWords:
+                    if len(keywords) > 1 and checkMultipleKeywords(item.toUpper(), keyword):
+                        selectedItems.append(item)
+                    elif len(keyword) == 1 and item.toUpper().find*(keyword[0])!= -1:
+                        selectedItems.append(item)
+            else:
+                selectedItems.append(item)
+
+        return selectedItems
+
+
+
+    
