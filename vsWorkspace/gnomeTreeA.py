@@ -130,12 +130,64 @@ class CheckIn():
                 sc.sticky["GnomeLibDefaultFolder"] = os.path.join(appdata, "udToolsD\\")
 
 ##### Hopefully sets up objs 
-class PrepareGnomeLibFiles(object):
+class PrepareGnomeLibFiles():
 
-    def __init__(self, workingDir = None, findLibFiles = False, ):
+    def __init__(self, findLibFiles = False, ):
 
         if not workingDir: workingDir = sc.sticky["GnomeLibDefaultFolder"]
         if not sc.sticky.has_key("nceCostEstLib"): sc.sticky["nceCostEstLib"] = {}
 
-        self.workingDir = workingDir
-        
+        self.findLibFiles = findLibFiles
+    
+    def cleanGnomeLibs(self):
+        sc.sticky["nceCostEstLib"] = {}
+
+    def findLibFiles(self):
+        #
+        # Hopefully looks in WorkingDir 
+        if costEst:
+            costEst = os.path.join(GnomeLibDefaultFolder, 'costEst.csv')
+            sc.sticky["nceCostEstLib"] = costEst
+        else:
+            print  'find lib file fail'
+
+class Get_GnomeLibraries:
+
+    def __init__(self):
+        self.libraries = {
+            "nceCostEst":{}
+        }
+    def getnceCostEst(self):
+        return self.libraries["nceCostEstLib"]
+
+    def cleanGnomeLibs(self):
+        self.libraries = {
+            "nceCostEst": {}
+        }
+
+    def replace(self):
+        #rep findings
+        print "%s NCE material & cost library delivered to Gnome Library"%str(len(self.libraries["nceCostEst"]))
+        print "\n"
+
+    @staticmethod 
+    def getnceCostEstDataFromFile(self, costEstFile):
+
+        with open(costEstFile, "r") as cEf:
+            for rowCount, row in enumerate(cEf):
+                 if rowCount > 1:
+                     try:
+                         costEstDataLine = row.split(',')
+                         costEstNameLine = float(nceDataLine[-4])
+                         matName = costEstNameLine[0].upper()
+
+                         # Create sub directory
+                         self.libraries["nceCostEstLib"][nceName] = {}
+
+                         #create mats with values from costEst.csv
+                         self.libraries["nceCostEst"][matName]["Name"] = matName
+                         self.libraries["nceCostEst"][matName]["Description"] = float(nceDataLine[-3])
+                         self.libraries["nceCostEst"][matName]["CostPerUnit"] = float(nceDataLine[-2])
+                         self.libraries["nceCostEst"][matName]["UnitOfMeasure"] = float(nceDataLine[-1])
+                        except: pass
+                        
