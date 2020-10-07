@@ -1,7 +1,9 @@
-# UD tools are intended to be useful, fun, interesting and hopefullly productive.
+# UD tools are intended to be helpful, possibly useful and maybe productive in the persuite 
+#of building better buildings for less $ but more η
 # 
 # they may or may not actually; or directly aide in endevours. 
-# My cat name = 'Cow' are just having a good time. 
+# My cat = 'Cow'
+# My cat and I are just having a good time
 # 
 # 
 # Copyright (c) 2020, UD <https://unconstraineddevelopment.com>
@@ -24,13 +26,15 @@
 # This is the 'Core' of UDtools shenanigans 
 
 # Forward unto aforementioned shenanigans
-
+#
 ghenv.Component.Name = 'UD_GnomeHome'
 ghenv.Component.NickName = 'GnomeHome'
 ghenv.Component.Message = 'Version 0.1\n SEP_2020'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "UDGnomeHome"
-ghenv.Component.SubCategory = "00 | WorldTree"
+ghenv.Component.SubCategory = "00 | UDTools"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+except: pass
 
 
 ## This component is basically a modification of Honeybee Honeybee 0.65.  
@@ -77,7 +81,7 @@ class CheckIn():
         
         if defaultFolder:
             # user set folder 
-            defaultFolder = os.path.normpath(defaultFolder) = os.sep
+            defaultFolder = os.path.normpath(defaultFolder) + os.sep
 
             if (" " in defaultFolder):
                 msg = "default folder cant have whitespaces, little legs, gnomes need _bridges" + \
@@ -132,7 +136,7 @@ class CheckIn():
 ##### Hopefully sets up objs 
 class PrepareGnomeLibFiles():
 
-    def __init__(self, findLibFiles = False, ):
+    def __init__(self, findLibFiles = False, workingDir = None):
 
         if not workingDir: workingDir = sc.sticky["GnomeLibDefaultFolder"]
         if not sc.sticky.has_key("nceCostEstLib"): sc.sticky["nceCostEstLib"] = {}
@@ -159,19 +163,28 @@ class Get_GnomeLibraries:
         }
     def getnceCostEst(self):
         return self.libraries["nceCostEstLib"]
+    
+    def importGnomeLibrariesFromFile(self, nceCostEstLibFile, isMatFile, cleanCurrentLib = True, report = True):
+        if not os.path.isFile(nceCostEstLibFile):
+            raise Exception("Cant Find File. Trevor messed somthing up at %s"%GnomeLibFiles)
+
+        print "loading nceCostEst Material Data from file"
+        self.loadnceCostEstMaterialData(GnomeLibObjects, cleanCurrentLib)
+
 
     def cleanGnomeLibs(self):
         self.libraries = {
             "nceCostEstLib": {}
         }
+    
+
 
     def replace(self):
         #rep findings
         print "%s NCE material & cost library delivered to Gnome Library"%str(len(self.libraries["nceCostEstLib"]))
         print "\n"
 
-    @staticmethod 
-    def getnceCostEstDataFromFile(self, costEstFile):
+    def getnceCostEstObjectsFromFile(self, matFile):
 
         with open(costEstFile, "r") as cEf:
             for rowCount, row in enumerate(cEf):
@@ -182,19 +195,25 @@ class Get_GnomeLibraries:
                          matName = costEstNameLine[0].upper()
 
                          # Create sub directory
-                         self.libraries["nceCostEstLib"][nceName] = {}
+                         self.libraries["nceCostEstLib"][matName] = {}
 
                          #create mats with values from costEst.csv
                          self.libraries["nceCostEstLib"][matName]["Name"] = matName
                          self.libraries["nceCostEstLib"][matName]["Description"] = float(nceDataLine[-3])
                          self.libraries["nceCostEstLib"][matName]["CostPerUnit"] = float(nceDataLine[-2])
                          self.libraries["nceCostEstLib"][matName]["UnitOfMeasure"] = float(nceDataLine[-1])
-                        except: pass
+                     except: pass
 
-class GnomLibAux(object):
+class nceCostEstLibAux(object):
 
     def isNceMaterial(self, matName):
         return matName.upper() in sc.sticky["nceCostEstLib"].keys()
+
+    def customizeCostEstLibObject(self, costEstLibObjName, indexes, inValues):
+        GnomeLibAUX = nceCostEstLibAUX()
+
+        if self.isNceMaterial(nceObjectName):
+            values, comments, uSI, uIP = nceCostEstMaterialAUX.decomposeMaterial(costEstLibObjName.upper())
     
     def getObjectKey(self, GnomeObj):
 
@@ -204,32 +223,33 @@ class GnomLibAux(object):
             if GnomeLibObject.strip().startswith(key):
                 return key
 
-    def getGnomeLibOjectDataByName(self, objectName):
+    def getGnomeLibObjectDataByName(self, objectName):
         objectData = None
 
         objectName = objectName.upper()
 
-        if objectName in sc.sticky ["nceCostEstLib"].keys():
-            objectData = sc.sticky ["nceCostEstLib"][onjectName]
+        if objectName in sc.sticky["nceCostEstLib"].keys():
+            objectData = sc.sticky["nceCostEstLib"][objectName]
 
         return objectData
 
-    def getGnomeObjectsStr(self, objectName):
+    def getnceCostEstLibObjectsStr(self, objectName):
 
-        objectData = self.getGnomeLibOjectDataByName(objectName)
+        objectData = self.getGnomeLibObjectDataByName(objectName)
 
         if objectData!=None:
             numberOfLayers = len(objectData.keys())
             
             objectStr = objectData[0] + ",\n"
 
-            objectStr = objectStr + " " + objectName + ",  !- name\n"
+            objectStr = objectStr + "  " + objectName + ",  !- name\n"
 
-
-# cont line 4426
-
-
-
+            for layer in range(1, numberOfLayers):
+                if layer < numberOfLayers-1:
+                    objectStr = objectStr + "  " + str(objectData[layer][0]) + ",   !- " objectData[layer][1] + "\n"
+                else: 
+                    objectStr = objectStr + "  " + str(objectData[layer][0]) + ";   !- " objectData[layer][1] + "\n\n"
+            return objectStr
 
 
 
@@ -260,6 +280,11 @@ def searchListByKeyword(self, inputlist, keyword):
                 selectedItems.append(item)
 
         return selectedItems
+
+
+sc.sticky["Get_GnomeLibraries"] = Get_GnomeLibraries
+sc.sticky["GnomeLibAux"] = GnomeLibeAUX
+sc.sticky["searchListByKeyword"] = searchListByKeyword
 
 
 
